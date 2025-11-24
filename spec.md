@@ -73,7 +73,7 @@ This portion is self explanitory.
 
 <a id="back"></a>
 ## 2.7 A working backend code using technologies taught in class
-We will use express.js for routing.
+We will use node.js and express.js for routing.
 
 ## 3.0 Website Design
 Our website will need at least four pages: a home page, a login, a user profile, and a page for handling business logic (listings, tickets, and reservations). We can either have a different "business logic" page for each type of user, or we can have the page dynamically react to the type of user.
