@@ -57,7 +57,7 @@ For passwords, we can use the [crypto](https://www.w3schools.com/nodejs/nodejs_c
 
 <a id="session"></a>
 ## 2.3 Session management
-For secures session management, we can use [http only cookies](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Cookies) to keep users logged in between reloads and page changes.
+For secure session management, we can use [http only cookies](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Cookies) to keep users logged in between reloads and page changes.
 
 <a id="persistence"></a>
 ## 2.4 Data persistence
