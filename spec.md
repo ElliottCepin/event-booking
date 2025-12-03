@@ -85,10 +85,19 @@ Hopefully, the home page will be simple; it should just describe how the website
 This should just be a simple login page. It will need a radio button to select for user type, because that is how we will know which account they are logging into (if they have multiple accounts with the same email/username). We could also just enforce unique usernames.
 
 ### 3.3 User profile
-This should contain any user details stored in the [user](#user) table in the backend presented neatly and in theme.
+This should contain any user details stored in the [user](#user) table in the backend presented neatly and in theme. 
 
 ### 3.4 Business logic
-This should probably be two pages (at minimum, depending on whether we want to separate these out for different user types). 
+This should probably be two pages (at minimum, depending on whether we want to separate these out for different user types). Buisness logic includes:
+- Displaying avaliable venues & events
+- Some way to navigate avaliable venues & events (searching/filtering)
+- Some way to create a venue, event, and booking
+
+
+### 3.5 System Administrator
+There should be an admin page where the site admin can make administrative actions like
+- adding, deleting, or updating any event, host, or booking
+- adding, deleting, or updating any user
 
 ## 4.0 Delegation
 - Elliott: Project Report, session management, user authentication, and ...  
