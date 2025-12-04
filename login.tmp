@@ -1,0 +1,9 @@
+<body>
+<label>Username</label><input type="text" id="username"><br>
+<label>Password</label><input type="text" id="username"><br>
+<button id="submit" onclick="login()">Submit</button>
+
+<script>
+
+</script>
+</body>

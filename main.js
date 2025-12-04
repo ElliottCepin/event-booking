@@ -18,7 +18,7 @@ app.get('/register', () => {
 
 });
 
-// TODO: what do we name the buisness logic?`
+// TODO: what do we name the buisness logic pages?
 app.get('/???', () => {
 
 });
