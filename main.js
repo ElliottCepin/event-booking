@@ -52,7 +52,7 @@ app.get('/register', () => {
 });
 
 // TODO: what do we name the buisness logic pages?
-app.get('/???', () => {
+app.get('/buisness-logic-1', () => {
 
 });
 app.listen(port, () => console.log("listening..."));
