@@ -54,6 +54,11 @@ app.get('/', (req, res) => { // home page
 	// TODO: load header and page title based on page 
 	var page = `<!DOCTYPE.HTML><html>\n$<body>${header + home}</body></html>`
 	res.send(page);
+	var user = currentUser(req.cookies);
+	if (user != null) {
+		console.log(user.username + " is logged in");
+	}
+
 });
 
 app.get('/login', (req, res) => {
@@ -69,9 +74,11 @@ app.post('/login_auth', (req, res) => {
 	for (var i of users) {
 		if (i.username === username) {
 			if (verifyPassword(password, i.salt, i.password)){
+				var token = generateToken();
 				console.log(`${username} logged in!`);
-				res.cookie("user", { "sessionID": generateToken() } 
-				i.sessionID = generateToken();
+				res.cookie("sessionID", token)
+				res.send();
+				i.sessionID = token;
 				break;
 			}
 			else {
@@ -127,7 +134,7 @@ function verifyPassword(password, salt, hash) {
 }
 
 function generateToken() {
-	return Math.random.toString(36).substr(2);
+	return Math.random().toString(36).substr(2);
 }
 
 // returns null on no logged in user
