@@ -1,5 +1,5 @@
 <label>Username</label><input type="text" id="username"><br>
-<label>Password</label><input type="text" id="password"><br>
+<label>Password</label><input type="password" id="password"><br>
 <!-- I've ommited the part of the spec that mentioned a different user type for booking-users, hosts, and venues. It seems unreasonable to restrict them like this -->
 <button id="submit" onclick="login()">Submit</button>
 
@@ -17,5 +17,7 @@ function login() {
 		
 		body: JSON.stringify({username, password})
 	});
+	document.getElementById("username").value = "";
+	document.getElementById("password").value = "";
 }
 </script>
