@@ -1,12 +1,13 @@
 var fs = require("fs");
 var crypto = require("crypto");
 var express = require("express");
+var cookieParser = require("cookie-parser");
 var app = express();
 const port = 8080
 
 /* Express Middleware */
 app.use(express.json());
-
+app.use(cookieParser());
 /* Load pages into memory */
 var header;
 var login;
@@ -69,6 +70,8 @@ app.post('/login_auth', (req, res) => {
 		if (i.username === username) {
 			if (verifyPassword(password, i.salt, i.password)){
 				console.log(`${username} logged in!`);
+				res.cookie("user", { "sessionID": generateToken() } 
+				i.sessionID = generateToken();
 				break;
 			}
 			else {
@@ -87,11 +90,10 @@ app.get('/register', (req, res) => {
 app.post('/registration', (req, res) => {	
 	var { username, email, password } = req.body;
 	// TODO: query mongo DB for user password & salt
-	// in mongodb, username will be hashsed.
 	// use verifyPassword(password, salt, hash) <-- password from post request, salt & hash from MongoDB
 	console.log(`username\t${username}\temail\t${email}password\t${password}`);
 	var {salt, hash} = hashPassword(password);
-	var user = {"username": username, "email": email, "salt": salt, "password": hash};
+	var user = {"username": username, "email": email, "salt": salt, "password": hash, "sessionID": null};
 	var found = 0;
 	for (var i of users) {
 		if (i.username === username) {
@@ -124,4 +126,17 @@ function verifyPassword(password, salt, hash) {
 	return hashedPassword === hash;
 }
 
+function generateToken() {
+	return Math.random.toString(36).substr(2);
+}
 
+// returns null on no logged in user
+// to get cookies, use req.cookies
+function currentUser(cookies) {
+	for (var user of users) {
+		if (user.sessionID === cookies.sessionID) {
+			return user;
+		}
+	}
+	return null;
+}
