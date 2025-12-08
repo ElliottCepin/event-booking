@@ -16,7 +16,7 @@ var registration;
 
 // temporary, until db is set up
 var users = [];
-fs.readFile('header.tmp', 'utf-8', (err, data) =>  {
+fs.readFile('header.html', 'utf-8', (err, data) =>  {
 	if (err) {
 		console.log('Error reading file');
 		return;
@@ -24,7 +24,7 @@ fs.readFile('header.tmp', 'utf-8', (err, data) =>  {
 	header = data;
 });
 
-fs.readFile('login.tmp', 'utf-8', (err, data) =>  {
+fs.readFile('login.html', 'utf-8', (err, data) =>  {
 	if (err) {
 		console.log('Error reading file');
 		return;
@@ -32,7 +32,7 @@ fs.readFile('login.tmp', 'utf-8', (err, data) =>  {
 	login = data;
 });
 
-fs.readFile('registration.tmp', 'utf-8', (err, data) =>  {
+fs.readFile('registration.html', 'utf-8', (err, data) =>  {
 	if (err) {
 		console.log('Error reading file');
 		return;
@@ -40,7 +40,7 @@ fs.readFile('registration.tmp', 'utf-8', (err, data) =>  {
 	registration = data;
 });
 
-fs.readFile('home.tmp', 'utf-8', (err, data) =>  {
+fs.readFile('home.html', 'utf-8', (err, data) =>  {
 	if (err) {
 		console.log('Error reading file');
 		return;
@@ -52,7 +52,7 @@ fs.readFile('home.tmp', 'utf-8', (err, data) =>  {
 app.get('/', (req, res) => { // home page
 	// TODO: how do we support page title dynamically loading into the header template?
 	// TODO: load header and page title based on page 
-	var page = `<!DOCTYPE.HTML><html>\n$<body>${header + home}</body></html>`
+	var page = `<!DOCTYPE.HTML><html>\n<body style="margin: 0;">${header + home}</body></html>`
 	res.send(page);
 	var user = currentUser(req.cookies);
 	if (user != null) {
@@ -62,7 +62,7 @@ app.get('/', (req, res) => { // home page
 });
 
 app.get('/login', (req, res) => {
-	var page = `<!DOCTYPE.HTML><html>\n$<body>${header + login}</body></html>`
+	var page = `<!DOCTYPE.HTML><html>\n<body style="margin: 0;">${header + login}</body></html>`
 	res.send(page);
 });
 
@@ -90,7 +90,7 @@ app.post('/login_auth', (req, res) => {
 });
 
 app.get('/register', (req, res) => {
-	var page = `<!DOCTYPE.HTML><html>\n$<body>${header + registration}</body></html>`
+	var page = `<!DOCTYPE.HTML><html>\n<body style="margin: 0;">${header + registration}</body></html>`
 	res.send(page);
 });
 
