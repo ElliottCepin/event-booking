@@ -1,0 +1,32 @@
+<main>
+    <!-- Header will be inserted server-side -->
+    <div id="content">
+        <h1>Available Venues & Events</h1>
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Search listings..." />
+            <button id="searchBtn">Search</button>
+        </div>
+
+
+        <div id="listingsContainer" class="listings">
+            <!-- JS will populate listings here -->
+        </div>
+    </div>
+
+
+<script>
+    // Example script placeholder
+    document.getElementById('searchBtn').onclick = () => {
+    const query = document.getElementById('searchInput').value;
+    console.log('Search for:', query);
+    // TODO: AJAX fetch filtered listings
+    };
+    </script>
+</main>
+
+<style>
+    main {
+        padding: 20px;
+        font-size: 20;
+    }
+</style>

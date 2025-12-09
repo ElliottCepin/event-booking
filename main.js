@@ -13,6 +13,8 @@ var header;
 var login;
 var home;
 var registration;
+var listings;
+var createListing;
 
 // temporary, until db is set up
 var users = [];
@@ -48,6 +50,15 @@ fs.readFile('home.html', 'utf-8', (err, data) =>  {
 	home = data;
 });
 
+fs.readFile('listings.html', 'utf-8', (err, data) => {
+    if (err) { console.log('Error reading listings.html'); return; }
+    listings = data;
+});
+
+fs.readFile('createListing.html', 'utf-8', (err, data) => {
+    if (err) { console.log('Error reading create-listing.html'); return; }
+    createListing = data;
+});
 /* Express Logic */
 app.get('/', (req, res) => { // home page
 	// TODO: how do we support page title dynamically loading into the header template?
@@ -111,10 +122,40 @@ app.post('/registration', (req, res) => {
 	if (!found) {users.push(user)}
 });
 
+// Receive listing creation form submission
+app.post('/listing/new', (req, res) => {
+    var { name, capacity, location, timeslots } = req.body;
+
+    console.log("New listing:", name, capacity, location, timeslots);
+
+    // TODO: Save to MongoDB later
+    // For now, just print and redirect back to listings
+
+    res.redirect('/listings');
+});
+
 
 // TODO: what do we name the buisness logic pages?
 app.get('/buisness-logic-1', () => {
 
+});
+// List all venue/event listings
+app.get('/listings', (req, res) => {
+    var page = `<!DOCTYPE.HTML><html><body style="margin:0;">${header + listings}</body></html>`;
+    res.send(page);
+});
+
+// Create a new listing (Venue users)
+app.get('/createListing', (req, res) => {
+	// TODO redirect to Home if not logged in
+	/*
+	if(currentUser(req.cookies) == null){
+		res.redirect('/');
+		return;
+	}
+	*/
+    var page = `<!DOCTYPE.HTML><html><body style="margin:0;">${header + createListing}</body></html>`;
+    res.send(page);
 });
 app.listen(port, () => console.log("listening..."));
 
