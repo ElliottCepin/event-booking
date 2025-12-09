@@ -1,25 +1,37 @@
 <main>
-    <h1> Welcome! </h1>
-    <p id="desc"> This website hosts an event booking service. We connect attendees looking for tickets with hosts looking to sell out seats in their venues. If you would please register an account you can begin buying tickets and creating events!</p>
-    <br>
-    <h3>Content of a Listing:</h3>
-    <ul>
-        <li> Venue Name </li>
-        <li> Venue Capacity </li>
-        <li> Location </li>
-        <li> Avaliable Times </li>
-    </ul>
-     <h3>Content of a Ticket:</h3>
-    <ul>
-        <li> Reservation ID </li>
-        <li> Seat Number </li>
-        <li> Time </li>
-    </ul>
+    <div>
+        <h1> Welcome! </h1>
+        <p id="desc"> This website hosts an event booking service. We connect
+            attendees looking for tickets with hosts looking to sell out seats 
+            in their venues. If you would please register an account you can begin 
+            buying tickets and creating events!</p>
+    </div>
+    <div>
+        <h3>Content of a Listing:</h3>
+        <ul>
+            <li> Venue Name </li>
+            <li> Venue Capacity </li>
+            <li> Location </li>
+            <li> Avaliable Times </li>
+        </ul>
+    </div>
+    <div>
+        <h3>Content of a Ticket:</h3>
+        <ul>
+            <li> Reservation ID </li>
+            <li> Seat Number </li>
+            <li> Time </li>
+        </ul>
+    </div>
 </main>
 
 <style>
     main {
         padding: 20px;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        margin-right: 300px;
     }
     #desc {
         max-width: 30vw;

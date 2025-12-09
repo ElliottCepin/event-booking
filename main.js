@@ -126,6 +126,14 @@ app.get('/profile', (req, res) => {
 	res.send(page);
 });
 
+app.post('/profile/userTickets', (req, res) => {
+	//TODO: return tickets tied to user
+});
+
+app.post('/profile/userListings', (req, res) => {
+	//TODO: return listings tied to user
+});
+
 // Receive listing creation form submission
 app.post('/listing/new', (req, res) => {
     var { name, capacity, location, timeslots } = req.body;

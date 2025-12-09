@@ -8,7 +8,7 @@
 
     <script>
         function refreshTickets() {
-            fetch("refresh_tickets", {
+            fetch("/profile/userTickets", {
                 method: 'POST', 
                 headers: {
                     'Content-Type': 'application/json'
@@ -16,7 +16,7 @@
             });
         }
         function refreshListings() {
-             fetch("refresh_Listings", {
+             fetch("/profile/userListings", {
                 method: 'POST', 
                 headers: {
                     'Content-Type': 'application/json'
