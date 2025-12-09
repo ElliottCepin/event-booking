@@ -97,7 +97,7 @@ app.post('/login_auth', async (req, res) => {
 	console.log(options);
 	if (options.length != 0) {
 		var user = options[0];
-		user.token = token;
+		user.sessionID = token;
 		if (verifyPassword(password, user.salt, user.password)) {
 			await db.updateUser(user);
 			res.cookie("sessionID", token)
@@ -244,6 +244,7 @@ async function currentUser(cookies) {
 	}
 	var {sessionID} = cookies;	
 	var user = await db.findUser({"sessionID": sessionID});
+	console.log(user);
 	return user[0];
 }
 
