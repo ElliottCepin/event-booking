@@ -128,14 +128,28 @@ app.post('/registration', async (req, res) => {
 });
 
 // Receive listing creation form submission
-app.post('/listing/new', (req, res) => {
+app.post('/listing/new', async (req, res) => {
     var { name, capacity, location, timeslots } = req.body;
 
     console.log("New listing:", name, capacity, location, timeslots);
 
-    // TODO: Save to MongoDB later
-    // For now, just print and redirect back to listings
-
+	var session = req.cookies.sessionID;
+	if (session != null) {
+		var options = await db.findUser({"token": session});
+		if (options.length != 0) {	
+			var user = options[0];	
+			user.listings.push(name);	
+			await db.createListing({"name":name, "capacity":capacity, "location":location, "timeslots":timeslots});
+			res.send(page);
+		} else {
+			res.redirect("/login");
+			res.send();
+		}
+	} else {
+		res.redirect("/login");
+		res.send();
+	}
+	
     res.redirect('/listings');
 	res.send();
 });
@@ -189,14 +203,13 @@ app.post('/profile/userListings', async (req, res) => {
 });
 
 // Create a new listing (Venue users)
-app.get('/createListing', (req, res) => {
+app.get('/createListing', async (req, res) => {
 	// TODO redirect to Home if not logged in
-	/*
-	if(currentUser(req.cookies) == null){
+	var logged_in = await db.findUser({"token": req.cookies.sessionID})
+	if(currentUser(req.cookies) == null || (logged_in).length === 0) {
 		res.redirect('/');
 		return;
 	}
-	*/
     var page = `<!DOCTYPE.HTML><html>${header + createListing}</body></html>`;
     res.send(page);
 });
