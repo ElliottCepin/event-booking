@@ -5,21 +5,27 @@
 
 
     <form id="createListingForm" method="POST">
-        <label>Name:</label>
-        <input type="text" name="name" required />
-        <br>
+        <span class="field">
+            <label>Name:</label>
+            <input type="text" name="name" required />
+        </span>
+         <br>
 
-        <label>Capacity:</label>
-        <input type="number" name="capacity" min="1" required />
-        <br>
+        <span class="field">
+            <label>Capacity:</label>
+            <input type="number" name="capacity" min="1" required />
+        </span>
+         <br>
 
-        <label>Location:</label>
-        <input type="text" name="location" required />
-        <br>
+        <span class="field">
+            <label>Location:</label>
+            <input type="text" name="location" required />
+        </span>
+         <br>
 
-        <label>Available Time Slots (comma separated):</label>
+        <label>Available Time Slots (comma separated):</label><br><br>
         <input type="text" name="timeslots" placeholder="e.g. 2pm, 3pm, 4pm" required />
-        <br>
+        <br><br>
 
         <button type="submit" onclick="addListing()">Create Listing</button>
     </form>
@@ -57,4 +63,10 @@
         padding: 20px;
         font-size: 20;
     }
+    .field {
+		width: 25vw;
+		display: flex;
+		direction: row;
+		justify-content: space-between;
+	}
 </style>
