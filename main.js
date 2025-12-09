@@ -71,12 +71,12 @@ fs.readFile('createListing.html', 'utf-8', (err, data) => {
     createListing = data;
 });
 /* Express Logic */
-app.get('/', (req, res) => { // home page
+app.get('/', async (req, res) => { // home page
 	// TODO: how do we support page title dynamically loading into the header template?
 	// TODO: load header and page title based on page 
 	var page = `<!DOCTYPE.HTML><html>\n${header + home}</body></html>`
 	res.send(page);
-	var user = currentUser(req.cookies);
+	var user = await currentUser(req.cookies);
 	if (user != null) {
 		console.log(user.username + " is logged in");
 	}
@@ -205,14 +205,16 @@ app.post('/profile/userListings', async (req, res) => {
 // Create a new listing (Venue users)
 app.get('/createListing', async (req, res) => {
 	// TODO redirect to Home if not logged in
-	var logged_in = await db.findUser({"token": req.cookies.sessionID})
-	if(currentUser(req.cookies) == null || (logged_in).length === 0) {
-		res.redirect('/');
-		return;
-	}
+	var logged_in = await currentUser(req.body); 
+	if(logged_in) {
     var page = `<!DOCTYPE.HTML><html>${header + createListing}</body></html>`;
     res.send(page);
+	}
+		res.redirect('/');
+		return;
 });
+
+
 app.listen(port, () => console.log("listening..."));
 
 /* Associated Functions */
@@ -236,11 +238,9 @@ function generateToken() {
 
 // returns null on no logged in user
 // to get cookies, use req.cookies
-function currentUser(cookies) {
-	for (var user of users) {
-		if (user.sessionID === cookies.sessionID) {
-			return user;
-		}
-	}
-	return null;
+async function currentUser(cookies) {
+	var session = cookies.sessionID;	
+	var user = await db.findUser({"token": session});
+	return user[0];
 }
+

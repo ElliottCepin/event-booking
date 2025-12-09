@@ -56,9 +56,7 @@ async function updateUser(user){
         await client.connect();
         var db = client.db('bookingDB');
         var coll = db.collection('users');
-        await coll.deleteOne(user);
-		user._id = user.username;
-		await coll.insertOne(user);
+        await coll.replaceOne({"_id": user._id}, user, {upsert: true});
         await client.close();
     }
     catch(err){
