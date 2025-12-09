@@ -127,19 +127,6 @@ app.post('/registration', async (req, res) => {
 	res.send();
 });
 
-app.get('/profile', (req, res) => {
-	var page = `<!DOCTYPE.HTML><html>\n${header + profile}</body></html>`
-	res.send(page);
-});
-
-app.post('/profile/userTickets', (req, res) => {
-	//TODO: return tickets tied to user
-});
-
-app.post('/profile/userListings', (req, res) => {
-	//TODO: return listings tied to user
-});
-
 // Receive listing creation form submission
 app.post('/listing/new', (req, res) => {
     var { name, capacity, location, timeslots } = req.body;
@@ -166,7 +153,7 @@ app.get('/profile', async (req, res) => {
 		var options = await db.findUser({"token": session});
 		if (options.length != 0) {	
 			var user = options[0];	
-			var page = `<!DOCTYPE.HTML><html><body stype="margin:0;">${header}\n<h1>${user.username}</h1></body></html>`;
+			var page = `<!DOCTYPE.HTML><html>\n${header + profile}</body></html>`; 
 			res.send(page);
 		} else {
 			res.redirect("/login");
@@ -176,6 +163,29 @@ app.get('/profile', async (req, res) => {
 		res.redirect("/login");
 		res.send();
 	}
+});
+
+app.post('/profile/userTickets', async (req, res) => {
+	var session = req.cookies.sessionID;
+	var options = await db.findUser({"token": session});
+	var user = options[0]
+	var ticketIDs = []
+	// TODO add users ticket IDs to tickets
+	var ticketsHtml = ``;
+	//TODO add the ticket info to html
+	res.send(ticketsHtml)
+	
+});
+
+app.post('/profile/userListings', async (req, res) => {
+	var session = req.cookies.sessionID;
+	var options = await db.findUser({"token": session});
+	var user = options[0]
+	var listingIDs = []
+	// TODO add users ticket IDs to tickets
+	var listingsHtml = ``;
+	//TODO add the ticket info to html
+	res.send(listingsHtml)
 });
 
 // Create a new listing (Venue users)
