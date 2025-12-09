@@ -181,12 +181,11 @@ app.get('/profile', async (req, res) => {
 // Create a new listing (Venue users)
 app.get('/createListing', (req, res) => {
 	// TODO redirect to Home if not logged in
-	/*
-	if(currentUser(req.cookies) == null){
+	var logged_in = await db.findUser({"token": req.cookies.sessionID})
+	if(currentUser(req.cookies) == null || (logged_in).length === 0) {{
 		res.redirect('/');
 		return;
 	}
-	*/
     var page = `<!DOCTYPE.HTML><html>${header + createListing}</body></html>`;
     res.send(page);
 });
