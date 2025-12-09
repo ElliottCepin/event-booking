@@ -94,11 +94,15 @@ app.post('/login_auth', async (req, res) => {
 	// use verifyPassword(password, salt, hash) <-- password from post request, salt & hash from MongoDB
 	var options = await db.findUser({"_id": username});
 	var token = generateToken();
+	console.log(options);
 	if (options.length != 0) {
 		var user = options[0];
 		user.token = token;
-		res.cookie("sessionID", token)
-		res.send();	
+		if (verifyPassword(password, user.salt, user.password)) {
+			await db.updateUser(user);
+			res.cookie("sessionID", token)
+			res.send();	
+		}
 	}
 });
 
@@ -113,8 +117,10 @@ app.post('/registration', async (req, res) => {
 	// use verifyPassword(password, salt, hash) <-- password from post request, salt & hash from MongoDB
 	console.log(`username\t${username}\temail\t${email}password\t${password}`);
 	var {salt, hash} = hashPassword(password);
-	var user = {"_id": username, "email": email, "salt": salt, "password": hash, "sessionID": null};
-	if (await db.findUser({"_id":username}).length === 0) {
+	var user = {"username": username, "email": email, "salt": salt, "password": hash, "sessionID": null};
+	var options = await db.findUser({"_id":username});
+	if (options.length === 0) {
+		console.log("does this happen?");
 		await db.createUser(user);
 	}	
 	res.redirect("/login");
