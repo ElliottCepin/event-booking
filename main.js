@@ -97,7 +97,7 @@ app.post('/login_auth', async (req, res) => {
 	console.log(options);
 	if (options.length != 0) {
 		var user = options[0];
-		user.token = token;
+		user.sessionID = token;
 		if (verifyPassword(password, user.salt, user.password)) {
 			await db.updateUser(user);
 			res.cookie("sessionID", token)
@@ -135,7 +135,7 @@ app.post('/listing/new', async (req, res) => {
 
 	var session = req.cookies.sessionID;
 	if (session != null) {
-		var options = await db.findUser({"token": session});
+		var options = await db.findUser({"sessionID": session});
 		if (options.length != 0) {	
 			var user = options[0];	
 			user.listings.push(name);	
@@ -164,7 +164,7 @@ app.get('/listings', (req, res) => {
 app.get('/profile', async (req, res) => {
 	var session = req.cookies.sessionID;
 	if (session != null) {
-		var options = await db.findUser({"token": session});
+		var options = await db.findUser({"sessionID": session});
 		if (options.length != 0) {	
 			var user = options[0];	
 			var page = `<!DOCTYPE.HTML><html>\n${header + profile}</body></html>`; 
@@ -181,7 +181,7 @@ app.get('/profile', async (req, res) => {
 
 app.post('/profile/userTickets', async (req, res) => {
 	var session = req.cookies.sessionID;
-	var options = await db.findUser({"token": session});
+	var options = await db.findUser({"sessionID": session});
 	var user = options[0]
 	var ticketIDs = []
 	// TODO add users ticket IDs to tickets
@@ -193,7 +193,7 @@ app.post('/profile/userTickets', async (req, res) => {
 
 app.post('/profile/userListings', async (req, res) => {
 	var session = req.cookies.sessionID;
-	var options = await db.findUser({"token": session});
+	var options = await db.findUser({"sessionID": session});
 	var user = options[0]
 	var listingIDs = []
 	// TODO add users ticket IDs to tickets
@@ -205,7 +205,7 @@ app.post('/profile/userListings', async (req, res) => {
 // Create a new listing (Venue users)
 app.get('/createListing', async (req, res) => {
 	// TODO redirect to Home if not logged in
-	var logged_in = await currentUser(req.body); 
+	var logged_in = await currentUser(req.cookies); 
 	if(logged_in) {
     var page = `<!DOCTYPE.HTML><html>${header + createListing}</body></html>`;
     res.send(page);
@@ -239,8 +239,12 @@ function generateToken() {
 // returns null on no logged in user
 // to get cookies, use req.cookies
 async function currentUser(cookies) {
-	var session = cookies.sessionID;	
-	var user = await db.findUser({"token": session});
+	if (cookies == null) {
+		return undefined;
+	}
+	var {sessionID} = cookies;	
+	var user = await db.findUser({"sessionID": sessionID});
+	console.log(user);
 	return user[0];
 }
 
