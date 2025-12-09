@@ -51,6 +51,20 @@ async function findUser(user){
     }
 }
 
+async function updateUser(user){
+    try{
+        await client.connect();
+        var db = client.db('bookingDB');
+        var coll = db.collection('users');
+        await coll.deleteOne(user);
+		user._id = user.username;
+		await coll.insertOne(user);
+        await client.close();
+    }
+    catch(err){
+        console.log(err);
+    }
+}
 async function deleteUser(user){
     try{
         await client.connect();
@@ -273,3 +287,25 @@ async function update(collName, search, changes){
     await coll.updateOne(search, changes);
     await client.close();
 }   
+
+module.exports = {
+    mongoConnect,
+    createUser,
+    findUser,
+    deleteUser,
+	updateUser,
+    createTicket,
+    createTickets,
+    findTicketByReservation,
+    findTicketById,
+    deleteTicket,
+    deleteTicketByReservationId,
+    createReservartion,
+    findReservartion,
+    deleteReservation,
+    deleteReservationByListingId,
+    createListing,
+    findListing,
+    deleteListing,
+    update
+};

@@ -1,5 +1,6 @@
 var fs = require("fs");
 var crypto = require("crypto");
+var db = require("./database.js");
 var express = require("express");
 var cookieParser = require("cookie-parser");
 var app = express();
@@ -77,26 +78,17 @@ app.get('/login', (req, res) => {
 	res.send(page);
 });
 
-app.post('/login_auth', (req, res) => {	
+app.post('/login_auth', async (req, res) => {	
 	var { username, password } = req.body;
 	// TODO: do this with mongoDB instead of in-memory storage
 	// use verifyPassword(password, salt, hash) <-- password from post request, salt & hash from MongoDB
-	console.log(`username\t${username}\tpassword\t${password}`);
-	for (var i of users) {
-		if (i.username === username) {
-			if (verifyPassword(password, i.salt, i.password)){
-				var token = generateToken();
-				console.log(`${username} logged in!`);
-				res.cookie("sessionID", token)
-				res.send();
-				i.sessionID = token;
-				break;
-			}
-			else {
-				console.log("Incorrect password!");
-				break;
-			}			
-		}
+	var options = await db.findUser({"_id": username});
+	var token = generateToken();
+	if (options.length != 0) {
+		var user = options[0];
+		user.token = token;
+		res.cookie("sessionID", token)
+		res.send();	
 	}
 });
 
@@ -105,21 +97,18 @@ app.get('/register', (req, res) => {
 	res.send(page);
 });
 
-app.post('/registration', (req, res) => {	
+app.post('/registration', async (req, res) => {	
 	var { username, email, password } = req.body;
 	// TODO: query mongo DB for user password & salt
 	// use verifyPassword(password, salt, hash) <-- password from post request, salt & hash from MongoDB
 	console.log(`username\t${username}\temail\t${email}password\t${password}`);
 	var {salt, hash} = hashPassword(password);
-	var user = {"username": username, "email": email, "salt": salt, "password": hash, "sessionID": null};
-	var found = 0;
-	for (var i of users) {
-		if (i.username === username) {
-			found = 1;
-		}
-	}
-	
-	if (!found) {users.push(user)}
+	var user = {"_id": username, "email": email, "salt": salt, "password": hash, "sessionID": null};
+	if (await db.findUser({"_id":username}).length === 0) {
+		await db.createUser(user);
+	}	
+	res.redirect("/login");
+	res.send();
 });
 
 // Receive listing creation form submission
@@ -132,17 +121,32 @@ app.post('/listing/new', (req, res) => {
     // For now, just print and redirect back to listings
 
     res.redirect('/listings');
+	res.send();
 });
 
 
-// TODO: what do we name the buisness logic pages?
-app.get('/buisness-logic-1', () => {
-
-});
 // List all venue/event listings
 app.get('/listings', (req, res) => {
     var page = `<!DOCTYPE.HTML><html><body style="margin:0;">${header + listings}</body></html>`;
     res.send(page);
+});
+
+app.get('/profile', async (req, res) => {
+	var session = req.cookies.sessionID;
+	if (session != null) {
+		var options = await db.findUser({"token": session});
+		if (options.length != 0) {	
+			var user = options[0];	
+			var page = `<!DOCTYPE.HTML><html><body stype="margin:0;">${header}\n<h1>${user.username}</h1></body></html>`;
+			res.send(page);
+		} else {
+			res.redirect("/login");
+			res.send();
+		}
+	} else {
+		res.redirect("/login");
+		res.send();
+	}
 });
 
 // Create a new listing (Venue users)
