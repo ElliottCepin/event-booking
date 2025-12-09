@@ -1,36 +1,54 @@
-<header>
-	<div id="banner">
-		<h1 style="color: white; margin-top: 0px; margin-bottom: 10px;">Event Booker</h1>
-		<nav>
-			<a href="./">Home</a><a href="login">Login</a><a href="register">Register</a>
-			<a href="listings">Listings</a><a href="createListing">Create Listing</a>
-		</nav>
-	</div>
-</header>
+<head>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+</head>
+<body>
+	<header>
+		<div id="banner">
+			<h1 id="Title">Event Booker</h1>
+			<nav>
+				<a href="./">Home</a> | <a href="login">Login</a> | <a href="register">Register</a> | <a href="profile">Profile</a> | 
+				<a href="listings">Listings</a> | <a href="createListing">Create Listing</a>
+			</nav>
+		</div>
+	</header>
 
-<style>
-	#banner {
-		display: flex; 
-		flex-direction: row; 
-		align-items: center; 
-		justify-content: space-between; 
-		background-color: #7EA0B7; 
-		padding: 20px;
-	}
-	nav {
-		display: flex; 
-		flex-direction: row; 
-		align-items: center; 
-		justify-content: space-between;
-		width: 30vw;
-		margin-right: 60px;
-	}
-	a {
-		color: white;
-		font-size: 20;
-		text-decoration: none;
-	}
-	a:hover {
-		text-decoration: underline;
-	}
-</style>
+	<style>
+		body {
+			margin:0;
+			font-family: "Open Sans", sans-serif;
+			font-optical-sizing: auto;
+			font-weight: 300;
+			font-style: normal;
+			font-variation-settings: "wdth" 100;
+		}
+		#banner {
+			display: flex; 
+			flex-direction: row; 
+			align-items: center; 
+			justify-content: space-between; 
+			background-color: #7EA0B7; 
+			padding: 20px;
+			color: white;
+		}
+		#title {
+			margin-top: 0px; margin-bottom: 10px;
+		}
+		nav {
+			display: flex; 
+			flex-direction: row; 
+			align-items: center; 
+			justify-content: space-between;
+			width: 50vw;
+			margin-right: 60px;
+		}
+		a {
+			font-size: 20;
+			text-decoration: none;
+			color: white;
+		}
+		a:hover {
+			text-decoration: underline;
+		}
+	</style>

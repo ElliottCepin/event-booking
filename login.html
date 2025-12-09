@@ -1,6 +1,8 @@
 <main>
-	<label>Username</label><input type="text" id="username"><br>
-	<label>Password</label><input type="password" id="password"><br>
+	<h1>Login</h1>
+	<br>
+	<span class="field"><label>Username</label><input type="text" id="username"></span><br>
+	<span class="field"><label>Password</label><input type="password" id="password"></span><br>
 	<!-- I've ommited the part of the spec that mentioned a different user type for booking-users, hosts, and venues. It seems unreasonable to restrict them like this -->
 	<button id="submit" onclick="login()">Submit</button>
 </main>
@@ -9,7 +11,13 @@
 	main {
 			padding: 20px;
 			font-size: 20px;
-		}
+	}
+	.field {
+		width: 25vw;
+		display: flex;
+		direction: row;
+		justify-content: space-between;
+	}
 </style>
 
 <script>

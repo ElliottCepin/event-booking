@@ -15,6 +15,7 @@ var home;
 var registration;
 var listings;
 var createListing;
+var profile;
 
 // temporary, until db is set up
 var users = [];
@@ -42,6 +43,15 @@ fs.readFile('registration.html', 'utf-8', (err, data) =>  {
 	registration = data;
 });
 
+fs.readFile('profile.html', 'utf-8', (err, data) =>  {
+	if (err) {
+		console.log('Error reading file');
+		return;
+	}
+	profile = data;
+});
+
+
 fs.readFile('home.html', 'utf-8', (err, data) =>  {
 	if (err) {
 		console.log('Error reading file');
@@ -63,7 +73,7 @@ fs.readFile('createListing.html', 'utf-8', (err, data) => {
 app.get('/', (req, res) => { // home page
 	// TODO: how do we support page title dynamically loading into the header template?
 	// TODO: load header and page title based on page 
-	var page = `<!DOCTYPE.HTML><html>\n<body style="margin: 0;">${header + home}</body></html>`
+	var page = `<!DOCTYPE.HTML><html>\n${header + home}</body></html>`
 	res.send(page);
 	var user = currentUser(req.cookies);
 	if (user != null) {
@@ -73,7 +83,7 @@ app.get('/', (req, res) => { // home page
 });
 
 app.get('/login', (req, res) => {
-	var page = `<!DOCTYPE.HTML><html>\n<body style="margin: 0;">${header + login}</body></html>`
+	var page = `<!DOCTYPE.HTML><html>\n${header + login}</body></html>`
 	res.send(page);
 });
 
@@ -101,7 +111,7 @@ app.post('/login_auth', (req, res) => {
 });
 
 app.get('/register', (req, res) => {
-	var page = `<!DOCTYPE.HTML><html>\n<body style="margin: 0;">${header + registration}</body></html>`
+	var page = `<!DOCTYPE.HTML><html>\n${header + registration}</body></html>`
 	res.send(page);
 });
 
@@ -120,6 +130,11 @@ app.post('/registration', (req, res) => {
 	}
 	
 	if (!found) {users.push(user)}
+});
+
+app.get('/profile', (req, res) => {
+	var page = `<!DOCTYPE.HTML><html>\n${header + profile}</body></html>`
+	res.send(page);
 });
 
 // Receive listing creation form submission
@@ -141,7 +156,7 @@ app.get('/buisness-logic-1', () => {
 });
 // List all venue/event listings
 app.get('/listings', (req, res) => {
-    var page = `<!DOCTYPE.HTML><html><body style="margin:0;">${header + listings}</body></html>`;
+    var page = `<!DOCTYPE.HTML><html>${header + listings}</body></html>`;
     res.send(page);
 });
 
@@ -154,7 +169,7 @@ app.get('/createListing', (req, res) => {
 		return;
 	}
 	*/
-    var page = `<!DOCTYPE.HTML><html><body style="margin:0;">${header + createListing}</body></html>`;
+    var page = `<!DOCTYPE.HTML><html>${header + createListing}</body></html>`;
     res.send(page);
 });
 app.listen(port, () => console.log("listening..."));
