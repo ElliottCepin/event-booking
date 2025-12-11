@@ -278,22 +278,36 @@ async function update(collName, search, changes) {
   }
 }
 
+async function getAllListings() {
+    try {
+        await client.connect();
+        var db = client.db('bookingDB');
+        var coll = db.collection('listing'); // same name you used in createListing
+        var result = await coll.find({}).toArray();
+        await client.close();
+        return result;
+    }
+    catch(err){
+        console.log(err);
+    }
+}
 module.exports = {
-  createUser,
-  findUser,
-  deleteUser,
-  createTicket,
-  createTickets,
-  findTicketByReservation,
-  findTicketById,
-  deleteTicket,
-  deleteTicketByReservationId,
-  createReservation,
-  findReservation,
-  deleteReservation,
-  deleteReservationByListingId,
-  createListing,
-  findListing,
-  deleteListing,
-  update
+    createUser,
+    findUser,
+    deleteUser,
+    createTicket,
+    createTickets,
+    findTicketByReservation,
+    findTicketById,
+    deleteTicket,
+    deleteTicketByReservationId,
+    createReservation,
+    findReservation,
+    deleteReservation,
+    deleteReservationByListingId,
+    createListing,
+    findListing,
+    deleteListing,
+    update,
+    getAllListings
 };

@@ -138,9 +138,9 @@ app.post('/listing/new', async (req, res) => {
 		var options = await db.findUser({"sessionID": session});
 		if (options.length != 0) {	
 			var user = options[0];	
-			user.listings.push(name);	
+			//user.listings.push(name);	
 			await db.createListing({"name":name, "capacity":capacity, "location":location, "timeslots":timeslots});
-			res.send(page);
+			//res.send();
 		} else {
 			res.redirect("/login");
 			res.send();
@@ -156,9 +156,40 @@ app.post('/listing/new', async (req, res) => {
 
 
 // List all venue/event listings
-app.get('/listings', (req, res) => {
-    var page = `<!DOCTYPE.HTML><html>${header + listings}</body></html>`;
-    res.send(page);
+app.get('/listings', async (req, res) => {
+    try {
+        const allListings = await db.getAllListings(); // <--- FETCH from MongoDB
+
+        let listingHTML = "";
+        for (let item of allListings) {
+            listingHTML += `
+                <div class="listing">
+                    <h2>${item.name}</h2>
+                    <p><strong>Capacity:</strong> ${item.capacity}</p>
+                    <p><strong>Location:</strong> ${item.location}</p>
+                    <p><strong>Timeslots:</strong> ${item.timeslots.join(", ")}</p>
+                </div>
+                <hr>
+            `;
+        }
+
+        const html = `
+            <!DOCTYPE html>
+            <html>
+            <head><title>Listings</title></head>
+            <body>
+                ${header}
+                <h1>Available Venues & Events</h1>
+                ${listingHTML}
+            </body>
+            </html>
+        `;
+
+        res.send(html);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Error loading listings");
+    }
 });
 
 app.get('/profile', async (req, res) => {
