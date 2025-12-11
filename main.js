@@ -18,7 +18,6 @@ var listings;
 var createListing;
 var profile;
 
-// temporary, until db is set up
 var users = [];
 fs.readFile('header.html', 'utf-8', (err, data) =>  {
 	if (err) {
@@ -244,12 +243,13 @@ app.post('/profile/userListings', async (req, res) => {
 app.get('/createListing', async (req, res) => {
 	// TODO redirect to Home if not logged in
 	var logged_in = await currentUser(req.cookies); 
-	if(logged_in) {
+	if (logged_in) {
     var page = `<!DOCTYPE.HTML><html>${header + createListing}</body></html>`;
     res.send(page);
-	}
+	}else {
+
 		res.redirect('/');
-		return;
+	}
 });
 
 

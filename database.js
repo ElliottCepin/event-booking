@@ -40,6 +40,19 @@ async function findUser(query) {
   }
 }
 
+async function updateUser(user){
+    try{
+        const client = await getClient();
+        var db = client.db('bookingDB');
+        var coll = db.collection('users');
+        await coll.replaceOne({"_id": user._id}, user, {upsert: true});
+        await client.close();
+    }
+    catch(err){
+        console.log(err);
+	}
+}
+
 async function deleteUser(query) {
   try {
     const client = await getClient();
@@ -277,7 +290,7 @@ async function update(collName, search, changes) {
 
 async function getAllListings() {
     try {
-        await client.connect();
+        client = await getClient(); 
         var db = client.db('bookingDB');
         var coll = db.collection('listing'); // same name you used in createListing
         var result = await coll.find({}).toArray();
@@ -292,6 +305,7 @@ module.exports = {
     createUser,
     findUser,
     deleteUser,
+	updateUser,
     createTicket,
     createTickets,
     findTicketByReservation,
