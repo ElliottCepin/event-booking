@@ -1,309 +1,299 @@
-var {MongoClient, ObjectId} = require('mongodb')
-var client = new MongoClient('mongodb://127.0.0.1:27017/')
+var { MongoClient, ObjectId } = require("mongodb");
 
+const URI = "mongodb://127.0.0.1:27017/";
+const DB_NAME = "bookingDB";
 
-/*
- * I was thinking if we are doing the multiple types of registration, we can just 
- * search listings and reservations based on the username
- */
-
-async function mongoConnect(){
-    try{
-        await client.connect()
-        console.log('Connected to mongoDB.')
-        await client.close()
-    }
-    catch(err){
-        console.log(err)
-    }
+async function getClient() {
+  const client = new MongoClient(URI);
+  await client.connect();
+  return client;
 }
 
-async function createUser(user){
-// Since we are abandoning the multiple types of registration, I will only be checking for
-// unique usernames and gmails when signing up, not combinations.
-    try{
-        await client.connect();
-        var db = client.db('bookingDB');
-        var coll = db.collection('users');
+async function createUser(user) {
+  try {
+    const client = await getClient();
+    const db = client.db(DB_NAME);
+    const coll = db.collection("users");
 
-        await coll.createIndex({ email: 1 }, { unique: true });
+    await coll.createIndex({ email: 1 }, { unique: true }).catch(() => {});
 
-        user._id = user.username;
-        await coll.insertOne(user);
-        await client.close();
-    }
-    catch(err){
-        console.log(err);
-    }
+    user._id = user.username;
+
+    await coll.insertOne(user);
+    await client.close();
+    return true;
+  } catch (err) {
+    console.log("createUser ERROR:", err);
+    return false;
+  }
 }
 
-async function findUser(user){
-    try{
-        await client.connect();
-        var db = client.db('bookingDB');
-        var coll = db.collection('users');
-        var result = await coll.find(user).toArray();
-        await client.close();
-        return result;
-    }
-    catch(err){
-        console.log(err);
-    }
+async function findUser(query) {
+  try {
+    const client = await getClient();
+    const db = client.db(DB_NAME);
+    const coll = db.collection("users");
+
+    const result = await coll.find(query).toArray();
+    await client.close();
+    return result;
+  } catch (err) {
+    console.log("findUser ERROR:", err);
+    return [];
+  }
 }
 
-async function updateUser(user){
-    try{
-        await client.connect();
-        var db = client.db('bookingDB');
-        var coll = db.collection('users');
-        await coll.replaceOne({"_id": user._id}, user, {upsert: true});
-        await client.close();
-    }
-    catch(err){
-        console.log(err);
-    }
-}
-async function deleteUser(user){
-    try{
-        await client.connect();
-        var db = client.db('bookingDB');
-        var coll = db.collection('users');
-        await coll.deleteOne(user);
-        await client.close();
-    }
-    catch(err){
-        console.log(err);
-    }
+async function deleteUser(query) {
+  try {
+    const client = await getClient();
+    const db = client.db(DB_NAME);
+    const coll = db.collection("users");
+
+    await coll.deleteOne(query);
+    await client.close();
+    return true;
+  } catch (err) {
+    console.log("deleteUser ERROR:", err);
+    return false;
+  }
 }
 
+async function createTicket(ticket) {
+  try {
+    const client = await getClient();
+    const db = client.db(DB_NAME);
+    const coll = db.collection("tickets");
 
-
-
-async function createTicket(ticket){
-    try{
-        await client.connect();
-        var db = client.db('bookingDB');
-        var coll = db.collection('tickets');
-        await coll.insertOne(ticket);
-        await client.close();
-    }
-    catch(err){
-        console.log(err);
-    }
+    await coll.insertOne(ticket);
+    await client.close();
+    return true;
+  } catch (err) {
+    console.log("createTicket ERROR:", err);
+    return false;
+  }
 }
 
-async function createTickets(tickets){
-    try{
-        await client.connect();
-        var db = client.db('bookingDB');
-        var coll = db.collection('tickets');
-        await coll.insertMany(tickets);
-        await client.close();
-    }
-    catch(err){
-        console.log(err);
-    }
+async function createTickets(tickets) {
+  try {
+    const client = await getClient();
+    const db = client.db(DB_NAME);
+    const coll = db.collection("tickets");
+
+    await coll.insertMany(tickets);
+    await client.close();
+    return true;
+  } catch (err) {
+    console.log("createTickets ERROR:", err);
+    return false;
+  }
 }
 
-async function findTicketByReservation(reservationId){
-    try{
-        await client.connect();
-        var db = client.db('bookingDB');
-        var coll = db.collection('tickets');
-        var result = await coll.find(reservationId).toArray();
-        await client.close();
-        return result;
-    }
-    catch(err){
-        console.log(err);
-    }
+async function findTicketByReservation(reservationQuery) {
+  try {
+    const client = await getClient();
+    const db = client.db(DB_NAME);
+    const coll = db.collection("tickets");
+
+    const result = await coll.find(reservationQuery).toArray();
+    await client.close();
+    return result;
+  } catch (err) {
+    console.log("findTicketByReservation ERROR:", err);
+    return [];
+  }
 }
 
-async function findTicketById(id){
-    try{
-        await client.connect();
-        var db = client.db('bookingDB');
-        var coll = db.collection('tickets');
-        var result = await coll.find(id).toArray();
-        await client.close();
-        return result;
-    }
-    catch(err){
-        console.log(err);
-    }
+async function findTicketById(query) {
+  try {
+    const client = await getClient();
+    const db = client.db(DB_NAME);
+    const coll = db.collection("tickets");
+
+    const result = await coll.find(query).toArray();
+    await client.close();
+    return result;
+  } catch (err) {
+    console.log("findTicketById ERROR:", err);
+    return [];
+  }
 }
 
-async function deleteTicket(id){
-    try{
-        await client.connect();
-        var db = client.db('bookingDB');
-        var coll = db.collection('tickets');
-        await coll.deleteOne(id);
-        await client.close();
-    }
-    catch(err){
-        console.log(err);
-    }
+async function deleteTicket(query) {
+  try {
+    const client = await getClient();
+    const db = client.db(DB_NAME);
+    const coll = db.collection("tickets");
+
+    await coll.deleteOne(query);
+    await client.close();
+    return true;
+  } catch (err) {
+    console.log("deleteTicket ERROR:", err);
+    return false;
+  }
 }
 
-async function deleteTicketByReservationId(reservationId){
-    try{
-        await client.connect();
-        var db = client.db('bookingDB');
-        var coll = db.collection('tickets');
-        await coll.deleteUsers(reservationId);
-        await client.close();
-    }
-    catch(err){
-        console.log(err);
-    }
+async function deleteTicketByReservationId(reservationQuery) {
+  try {
+    const client = await getClient();
+    const db = client.db(DB_NAME);
+    const coll = db.collection("tickets");
+
+    await coll.deleteMany(reservationQuery);
+    await client.close();
+    return true;
+  } catch (err) {
+    console.log("deleteTicketByReservationId ERROR:", err);
+    return false;
+  }
 }
 
+async function createReservation(reservation) {
+  try {
+    const client = await getClient();
+    const db = client.db(DB_NAME);
+    const coll = db.collection("reservations");
 
-async function createReservartion(reservation){
-    try{
-        await client.connect();
-        var db = client.db('bookingDB');
-        var coll = db.collection('reservations');
-        await coll.insertOne(reservation);
-        await client.close();
-    }
-    catch(err){
-        console.log(err);
-    }
+    await coll.insertOne(reservation);
+    await client.close();
+    return true;
+  } catch (err) {
+    console.log("createReservation ERROR:", err);
+    return false;
+  }
 }
 
-async function findReservartion(reservation){
-    try{
-        await client.connect();
-        var db = client.db('bookingDB');
-        var coll = db.collection('reservations');
-        var result = await coll.find(reservation).toArray();
-        await client.close();
-        return result;
-    }
-    catch(err){
-        console.log(err);
-    }
+async function findReservation(query) {
+  try {
+    const client = await getClient();
+    const db = client.db(DB_NAME);
+    const coll = db.collection("reservations");
+
+    const result = await coll.find(query).toArray();
+    await client.close();
+    return result;
+  } catch (err) {
+    console.log("findReservation ERROR:", err);
+    return [];
+  }
 }
 
-async function deleteReservation(reservation){
-    try{
-        await client.connect();
-        var db = client.db('bookingDB');
-        var coll = db.collection('reservation');
+async function deleteReservation(reservation) {
+  try {
+    const client = await getClient();
+    const db = client.db(DB_NAME);
+    const coll = db.collection("reservations");
 
-        await deleteTicketByReservationId(reservation);
+    await deleteTicketByReservationId({ reservationId: reservation.uniqueId });
 
-        await coll.deleteOne(reservation);
-        await client.close();
-    }
-    catch(err){
-        console.log(err);
-    }
+    await coll.deleteOne({ _id: reservation._id });
+    await client.close();
+    return true;
+  } catch (err) {
+    console.log("deleteReservation ERROR:", err);
+    return false;
+  }
 }
 
-async function deleteReservationByListingId(listing){
-    try{
-        await client.connect();
-        var db = client.db('bookingDB');
-        var coll = db.collection('reservation');
+async function deleteReservationByListingId(listingQuery) {
+  try {
+    const reservations = await findReservation(listingQuery);
+    const reservation = reservations[0];
+    if (!reservation) return false;
 
-        var reservation = await findReservartion(listing);
+    await deleteTicketByReservationId({ reservationId: reservation.uniqueId });
 
-        await deleteTicketByReservationId(reservation);
+    const client = await getClient();
+    const db = client.db(DB_NAME);
+    const coll = db.collection("reservations");
 
-        await coll.deleteOne(reservation);
-        await client.close();
-    }
-    catch(err){
-        console.log(err);
-    }
+    await coll.deleteOne({ _id: reservation._id });
+    await client.close();
+    return true;
+  } catch (err) {
+    console.log("deleteReservationByListingId ERROR:", err);
+    return false;
+  }
 }
 
-async function createListing(listing){
-    try{
-        await client.connect();
-        var db = client.db('bookingDB');
-        var coll = db.collection('listing');
-        await coll.insertOne(listing);
-        await client.close();
-    }
-    catch(err){
-        console.log(err);
-    }
+async function createListing(listing) {
+  try {
+    const client = await getClient();
+    const db = client.db(DB_NAME);
+    const coll = db.collection("listing");
+
+    await coll.insertOne(listing);
+    await client.close();
+    return true;
+  } catch (err) {
+    console.log("createListing ERROR:", err);
+    return false;
+  }
 }
 
-async function findListing(listing){
-    try{
-        await client.connect();
-        var db = client.db('bookingDB');
-        var coll = db.collection('listing');
-        var result = await coll.find(listing).toArray();
-        await client.close();
-        return result;
-    }
-    catch(err){
-        console.log(err);
-    }
+async function findListing(query) {
+  try {
+    const client = await getClient();
+    const db = client.db(DB_NAME);
+    const coll = db.collection("listing");
+
+    const result = await coll.find(query).toArray();
+    await client.close();
+    return result;
+  } catch (err) {
+    console.log("findListing ERROR:", err);
+    return [];
+  }
 }
 
-async function deleteListing(listing){
-    try{
-        await client.connect();
-        var db = client.db('bookingDB');
-        var coll = db.collection('listing');
-        var result = await coll.find(listing).toArray();
-        await client.close();
-        return result;
-    }
-    catch(err){
-        console.log(err);
-    }
+async function deleteListing(listingQuery) {
+  try {
+    await deleteReservationByListingId(listingQuery);
+
+    const client = await getClient();
+    const db = client.db(DB_NAME);
+    const coll = db.collection("listing");
+
+    await coll.deleteOne(listingQuery);
+    await client.close();
+    return true;
+  } catch (err) {
+    console.log("deleteListing ERROR:", err);
+    return false;
+  }
 }
 
-async function deleteListing(listing){
-    try{
-        await client.connect();
-        var db = client.db('bookingDB');
-        var coll = db.collection('reservation');
+async function update(collName, search, changes) {
+  try {
+    const client = await getClient();
+    const db = client.db(DB_NAME);
+    const coll = db.collection(collName);
 
-        await deleteReservationByListingId(listing);
-
-        await coll.deleteOne(listing);
-        await client.close();
-    }
-    catch(err){
-        console.log(err);
-    }
-}
-
-async function update(collName, search, changes){
-    await client.connect();
-    var db = client.db('bookingDB');
-    var coll = db.collection(collName);
     await coll.updateOne(search, changes);
     await client.close();
-}   
+    return true;
+  } catch (err) {
+    console.log("update ERROR:", err);
+    return false;
+  }
+}
 
 module.exports = {
-    mongoConnect,
-    createUser,
-    findUser,
-    deleteUser,
-	updateUser,
-    createTicket,
-    createTickets,
-    findTicketByReservation,
-    findTicketById,
-    deleteTicket,
-    deleteTicketByReservationId,
-    createReservartion,
-    findReservartion,
-    deleteReservation,
-    deleteReservationByListingId,
-    createListing,
-    findListing,
-    deleteListing,
-    update
+  createUser,
+  findUser,
+  deleteUser,
+  createTicket,
+  createTickets,
+  findTicketByReservation,
+  findTicketById,
+  deleteTicket,
+  deleteTicketByReservationId,
+  createReservation,
+  findReservation,
+  deleteReservation,
+  deleteReservationByListingId,
+  createListing,
+  findListing,
+  deleteListing,
+  update
 };
