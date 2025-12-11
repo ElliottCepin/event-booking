@@ -8,6 +8,7 @@ const port = 8080
 
 /* Express Middleware */
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 /* Load pages into memory */
 var header;
@@ -157,16 +158,39 @@ app.post('/listing/new', async (req, res) => {
 // List all venue/event listings
 app.get('/listings', async (req, res) => {
     try {
-        const allListings = await db.getAllListings(); // <--- FETCH from MongoDB
+        const query = req.query.search || "";
+        let listings = [];
+
+        if (query.trim() === "") {
+            listings = await db.getAllListings();
+        } else {
+            listings = await db.searchListings(query);
+        }
 
         let listingHTML = "";
-        for (let item of allListings) {
+        for (let item of listings) {
             listingHTML += `
                 <div class="listing">
                     <h2>${item.name}</h2>
                     <p><strong>Capacity:</strong> ${item.capacity}</p>
+                    <p><strong>Booked:</strong> ${item.bookedSeats}</p>
+                    <p><strong>Available:</strong> ${item.capacity - item.bookedSeats}</p>
                     <p><strong>Location:</strong> ${item.location}</p>
                     <p><strong>Timeslots:</strong> ${item.timeslots.join(", ")}</p>
+
+                    <form action="/reserve" method="post">
+    <input type="hidden" name="listingName" value="${item.name}">
+    
+    <label>Seats:</label>
+    <input type="number" name="seats" value="1" min="1" max="${item.capacity - (item.bookedSeats || 0)}">
+
+    <label>Timeslot:</label>
+    <select name="timeslot">
+        ${item.timeslots.map(ts => `<option value="${ts}">${ts}</option>`).join("")}
+    </select>
+
+    <button type="submit">Reserve</button>
+</form>
                 </div>
                 <hr>
             `;
@@ -179,16 +203,180 @@ app.get('/listings', async (req, res) => {
             <body>
                 ${header}
                 <h1>Available Venues & Events</h1>
+
+                <form action="/listings" method="get">
+                    <input type="text" name="search" placeholder="Search listings" value="${query}">
+                    <button type="submit">Search</button>
+                </form>
+
                 ${listingHTML}
             </body>
             </html>
         `;
 
         res.send(html);
+
     } catch (err) {
         console.error(err);
         res.status(500).send("Error loading listings");
     }
+});
+app.get('/search', async (req, res) => {
+    const q = req.query.q?.trim() || "";
+
+    let results = [];
+
+    try {
+        results = await db.searchListings(q);
+    } catch (err) {
+        console.log("Search error:", err);
+    }
+
+    let resultHTML = "";
+    for (let item of results) {
+        resultHTML += `
+            <div class="listing">
+                <h2>${item.name}</h2>
+                <p><strong>Capacity:</strong> ${item.capacity}</p>
+                <p><strong>Location:</strong> ${item.location}</p>
+                <p><strong>Timeslots:</strong> ${item.timeslots.join(", ")}</p>
+            </div>
+            <hr>
+        `;
+    }
+
+    const html = `
+        <!DOCTYPE html>
+        <html>
+        <head><title>Search Results</title></head>
+        <body>
+            ${header}
+            <h1>Search Results for "${q}"</h1>
+            ${resultHTML || "<p>No matches found.</p>"}
+        </body>
+        </html>
+    `;
+
+    res.send(html);
+});
+async function reserveSeats(listingName) {
+    const db = client.db("bookingDB");
+    const col = db.collection("listings");
+
+    const result = await col.findOneAndUpdate(
+        { 
+            name: listingName,
+            $expr: { $lt: ["$bookedSeats", "$capacity"] }
+        },
+        { $inc: { bookedSeats: 1 } },
+        { returnDocument: "after" }
+    );
+
+    return result.value; // null if no seats left
+}
+app.post('/reserve', async (req, res) => {
+    try {
+        const { listingName, seats, timeslot } = req.body;
+        const numSeats = parseInt(seats) || 1;
+
+        const sessionID = req.cookies.sessionID;
+        if (!sessionID) return res.redirect('/login');
+
+        // Find user
+        const users = await db.findUser({ sessionID });
+        if (users.length === 0) return res.redirect('/login');
+        const user = users[0];
+
+        // Find listing
+        const listings = await db.findListing({ name: listingName });
+        if (listings.length === 0) return res.status(404).send("Listing not found");
+        const listing = listings[0];
+
+        // Check capacity
+        const availableSeats = listing.capacity - (listing.bookedSeats || 0);
+        if (numSeats > availableSeats) return res.send("Not enough seats available");
+
+        // Update listing bookedSeats
+        listing.bookedSeats = (listing.bookedSeats || 0) + numSeats;
+        await db.update("listing", { _id: listing._id }, { $set: { bookedSeats: listing.bookedSeats } });
+
+        // Add to user reservations
+        user.reservations = user.reservations || [];
+        user.reservations.push({
+            listingId: listing._id,
+            seats: numSeats,
+            timeslot: timeslot
+        });
+        await db.updateUser(user);
+
+        // Create ticket
+        await db.createTicket({
+            _id: user._id+ "_" + listing._id + "_" + Date.now(), // unique ticket ID
+            userId: user._id,
+            listingId: listing._id,
+            seats: numSeats,
+            timeslot: timeslot,
+            date: new Date()
+        });
+
+        res.redirect('/listings');
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Error reserving seats");
+    }
+});
+
+app.get("/listings/data", async (req, res) => {
+    const search = req.query.search || "";
+
+    let filter = {};
+    if (search.trim() !== "") {
+        filter = {
+            $or: [
+                { name: { $regex: search, $options: "i" } },
+                { location: { $regex: search, $options: "i" } },
+                { timeslots: { $elemMatch: { $regex: search, $options: "i" } } }
+            ]
+        };
+    }
+
+    const listings = await db.findListing(filter);
+    res.json(listings);
+});
+
+app.post("/listing/book", async (req, res) => {
+    const { listingId } = req.body;
+    const session = req.cookies.sessionID;
+
+    if (!session) return res.status(401).json({ error: "Not logged in" });
+
+    // Find user by session
+    const users = await db.findUser({ sessionID: session });
+    if (!users || users.length === 0)
+        return res.status(404).json({ error: "User not found" });
+    const user = users[0];
+	console.log("user", users);
+    // Find listing
+    const listings = await db.findListing({ _id: listingId });
+    if (!listings || listings.length === 0)
+        return res.status(404).json({ error: "Listing not found" });
+    const listing = listings[0];
+
+    // Optional: check if capacity is full
+    const bookedTickets = await db.findTicketById({ listingId });
+    if (bookedTickets.length >= listing.capacity)
+        return res.status(400).json({ error: "No seats available" });
+
+    // Create ticket in tickets collection
+    const ticket = {
+        userId: user._id,
+        listingId: listing._id,
+        listingName: listing.name,
+        bookedAt: new Date()
+    };
+    await db.createTicket(ticket);
+
+    res.json({ success: true, ticket });
 });
 
 app.get('/profile', async (req, res) => {
@@ -209,34 +397,26 @@ app.get('/profile', async (req, res) => {
 	}
 });
 
-app.post('/profile/getUsername', async (req, res) => {
-	var session = req.cookies.sessionID;
-	try {
-		var options = await db.findUser({"sessionID": session});
-		if (options.length != 0) {	
-			var username = options[0].username;
-			res.send(username)
-			return;
-		}
-		res.send("username not found");
-	}
-	catch (err) {
-		console.log(err);
-		res.status(500).send("Error fetching username");
-	}
-	
+app.get("/profile/getUsername", async (req, res) => {
+    const session = req.cookies.sessionID;
+    if (!session) return res.status(401).send("Not logged in");
+
+    const users = await db.findUser({ sessionID: session });
+    if (!users[0]) return res.status(404).send("User not found");
+
+    res.send(users[0].username);
 });
 
-app.post('/profile/userTickets', async (req, res) => {
-	var ticket = {"id":null, "listing_id":null, }
-	db.createTicket(ticket);
-	var session = req.cookies.sessionID;
-	var options = await db.findUser({"sessionID": session});
-	var user = options[0]
-	var ticket = db.findTicketById(user._id);
-	console.log(ticket);
-	res.redirect('/profile');
-	res.send(ticket)
+app.get("/profile/userTickets", async (req, res) => {
+    const session = req.cookies.sessionID;
+    if (!session) return res.status(401).json({ error: "Not logged in" });
+
+    const users = await db.findUser({ sessionID: session });
+    const user = users[0];
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    const tickets = await db.findTicketById({ userId: user._id }); // adjust your query
+    res.json(tickets); // send JSON
 });
 
 app.post('/profile/userListings', async (req, res) => {
@@ -257,11 +437,10 @@ app.get('/createListing', async (req, res) => {
 	var logged_in = await currentUser(req.cookies); 
 	if (logged_in) {
     var page = `<!DOCTYPE.HTML><html>${header + createListing}</body></html>`;
-    res.send(page);
-	}else {
-
-		res.redirect('/');
+    return res.send(page);
+	
 	}
+		res.redirect('/');
 });
 
 

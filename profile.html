@@ -11,41 +11,59 @@
     <button id="refListings" onclick="refreshListings()">Refresh</button>
 
     <script>
-        populateUsername()
+populateUsername();
 
-        async function populateUsername() {
-            var nameContainer = document.getElementById("nameContainer")
-            const response = await fetch("/profile/getUsername", {
-                method: 'POST', 
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({})
-            });
-            const username = await response.text();
-            console.log("username: ", username.body);
-            nameContainer.innerHTML = "<p>"+username+"</p>"
-        }
+async function populateUsername() {
+    const nameContainer = document.getElementById("nameContainer");
+    const response = await fetch("/profile/getUsername"); // GET instead of POST
+    const username = await response.text();
+    console.log("username:", username);
+    nameContainer.innerHTML = `<p>${username}</p>`;
+}
 
-        async function refreshTickets() {
-            const ticketContainer = document.getElementById("ticketCont");
-            ticketContainer.innerHTML = "<p>Loading...</p>";
-            const tickets = await fetch("/profile/userTickets", {
-                method: 'POST', 
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({})
-            });
-            console.log("ticket", tickets);
-            ticketContainer.innerText = tickets;
-        }
-        async function refreshListings() {
-            const listingContainer = document.getElementById("listingCont");
-            const listings = await fetch("/profile/userListings");
-            listingContainer.innerText = listings
-        }
-    </script>
+async function refreshTickets() {
+    const ticketContainer = document.getElementById("ticketCont");
+    ticketContainer.innerHTML = "<p>Loading...</p>";
+
+    const response = await fetch("/profile/userTickets"); // GET instead of POST
+    if (!response.ok) {
+        ticketContainer.innerHTML = "<p>Error loading tickets</p>";
+        return;
+    }
+
+    const tickets = await response.json(); // parse JSON
+    ticketContainer.innerHTML = "";
+
+    if (tickets.length === 0) {
+        ticketContainer.innerHTML = "<p>No tickets reserved yet</p>";
+        return;
+    }
+
+    tickets.forEach(ticket => {
+        const div = document.createElement("div");
+        div.textContent = `Listing: ${ticket.listingName}, Number of seats: ${ticket.seats}, Time Slot: ${ticket.timeslot}`;
+        ticketContainer.appendChild(div);
+    });
+}
+
+async function refreshListings() {
+    const listingContainer = document.getElementById("ListingCont"); // fix ID typo
+    const response = await fetch("/profile/userListings"); // GET route
+    if (!response.ok) {
+        listingContainer.innerHTML = "<p>Error loading listings</p>";
+        return;
+    }
+
+    const listings = await response.json();
+    listingContainer.innerHTML = "";
+
+    listings.forEach(listing => {
+        const div = document.createElement("div");
+        div.textContent = `Name: ${listing.name}, Location: ${listing.location}`;
+        listingContainer.appendChild(div);
+    });
+}
+</script>
 </main>
 
 <style>
