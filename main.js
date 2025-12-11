@@ -422,16 +422,9 @@ app.get("/profile/userTickets", async (req, res) => {
     res.json(tickets); // send JSON
 });
 
-app.post('/profile/userListings', async (req, res) => {
-	var session = req.cookies.sessionID;
-	var options = await db.findUser({"sessionID": session});
-	console.log("listings",options);
-	var user = options[0]
-	var listingIDs = []
-	// TODO add users ticket IDs to tickets
-	var listingsHtml = ``;
-	//TODO add the ticket info to html
-	res.send(listingsHtml)
+app.get("/profile/signOut", async(req, res) => {
+	res.clearCookie("sessionID");
+	res.redirect('/login')
 });
 
 // Create a new listing (Venue users)

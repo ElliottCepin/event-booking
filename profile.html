@@ -1,11 +1,18 @@
 <main>
-    <h1> Your Profile </h1>
+        <h1> Your Profile </h1>
+    
     <br>
-    <h3>Name</h3>
+    <div id="userName">
+    <h3>User Name:</h3>
     <div id="nameContainer"></div>
+    <a href="login" target="_blank"><button onclick="signOut()">Sign Out</button></a>
+    </div>
+    
+    <hr>
     <h3>User Tickets</h3>
-    <button id="refTickets" onclick="refreshTickets()">Refresh</button>
     <div id="ticketCont"></div>
+    <br>
+    <button id="refTickets" onclick="refreshTickets()">Refresh</button>
     <script>
 populateUsername();
 
@@ -15,6 +22,11 @@ async function populateUsername() {
     const username = await response.text();
     console.log("username:", username);
     nameContainer.innerHTML = `<p>${username}</p>`;
+}
+
+async function signOut() {
+    await fetch("/profile/signOut");
+
 }
 
 async function refreshTickets() {
@@ -37,35 +49,29 @@ async function refreshTickets() {
 
     tickets.forEach(ticket => {
         const div = document.createElement("div");
-        div.textContent = `Listing: ${ticket.listingName}, Number of seats: ${ticket.seats}, Time Slot: ${ticket.timeslot}`;
+        div.innerHTML = `<h4>${ticket.listingName}</h4>\n<p>Number of seats: ${ticket.seats}</p>\n<p>Time Slot: ${ticket.timeslot}</p><hr>`;
         ticketContainer.appendChild(div);
     });
 }
 
-async function refreshListings() {
-    const listingContainer = document.getElementById("ListingCont"); // fix ID typo
-    const response = await fetch("/profile/userListings"); // GET route
-    if (!response.ok) {
-        listingContainer.innerHTML = "<p>Error loading listings</p>";
-        return;
-    }
-
-    const listings = await response.json();
-    listingContainer.innerHTML = "";
-
-    listings.forEach(listing => {
-        const div = document.createElement("div");
-        div.textContent = `Name: ${listing.name}, Location: ${listing.location}`;
-        listingContainer.appendChild(div);
-    });
-}
 </script>
 </main>
 
 <style>
     main {
         padding: 20px;
+		max-width: 30vw;
         font-size: 20px;
 		font-family: Arial, sans-serif;
+    } 
+    #username {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        min-width: 20vw;
+    }
+    #ticketCont {
+        margin-left: 20px;
     }
 </style>
