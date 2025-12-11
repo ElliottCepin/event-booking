@@ -18,7 +18,6 @@ var listings;
 var createListing;
 var profile;
 
-// temporary, until db is set up
 var users = [];
 fs.readFile('header.html', 'utf-8', (err, data) =>  {
 	if (err) {
@@ -240,9 +239,10 @@ app.get('/createListing', async (req, res) => {
 	if (logged_in) {
     var page = `<!DOCTYPE.HTML><html>${header + createListing}</body></html>`;
     res.send(page);
-	}
+	}else {
+
 		res.redirect('/');
-		return;
+	}
 });
 
 
