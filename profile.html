@@ -12,18 +12,31 @@
 
     <script>
         populateUsername()
-        
+
         async function populateUsername() {
             var nameContainer = document.getElementById("nameContainer")
-            const username = await fetch("/profile/getUsername");
-            console.log("username: ", username);
+            const response = await fetch("/profile/getUsername", {
+                method: 'POST', 
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({})
+            });
+            const username = await response.text();
+            console.log("username: ", username.body);
             nameContainer.innerHTML = "<p>"+username+"</p>"
         }
 
         async function refreshTickets() {
             const ticketContainer = document.getElementById("ticketCont");
             ticketContainer.innerHTML = "<p>Loading...</p>";
-            const tickets = await fetch("/profile/userTickets");
+            const tickets = await fetch("/profile/userTickets", {
+                method: 'POST', 
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({})
+            });
             console.log("ticket", tickets);
             ticketContainer.innerText = tickets;
         }

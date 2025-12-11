@@ -211,9 +211,20 @@ app.get('/profile', async (req, res) => {
 
 app.post('/profile/getUsername', async (req, res) => {
 	var session = req.cookies.sessionID;
-	var options = await db.findUser({"sessionID": session});
-	console.log(options);
-	res.send("placeholder");
+	try {
+		var options = await db.findUser({"sessionID": session});
+		if (options.length != 0) {	
+			var username = options[0].username;
+			res.send(username)
+			return;
+		}
+		res.send("username not found");
+	}
+	catch (err) {
+		console.log(err);
+		res.status(500).send("Error fetching username");
+	}
+	
 });
 
 app.post('/profile/userTickets', async (req, res) => {
@@ -224,6 +235,7 @@ app.post('/profile/userTickets', async (req, res) => {
 	var user = options[0]
 	var ticket = db.findTicketById(user._id);
 	console.log(ticket);
+	res.redirect('/profile');
 	res.send(ticket)
 });
 
