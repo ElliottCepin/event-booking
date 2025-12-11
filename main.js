@@ -228,27 +228,13 @@ app.post('/profile/getUsername', async (req, res) => {
 });
 
 app.post('/profile/userTickets', async (req, res) => {
-	var ticket = {"id":null, "listing_id":null, }
-	db.createTicket(ticket);
+	// var ticket = {"id":"test", "listing_id":"testListing", "seat_num": "000"}
+	// db.createTicket(ticket);
 	var session = req.cookies.sessionID;
 	var options = await db.findUser({"sessionID": session});
 	var user = options[0]
-	var ticket = db.findTicketById(user._id);
-	console.log(ticket);
-	res.redirect('/profile');
+	var ticket = await db.findTicketById({"id": user.username});
 	res.send(ticket)
-});
-
-app.post('/profile/userListings', async (req, res) => {
-	var session = req.cookies.sessionID;
-	var options = await db.findUser({"sessionID": session});
-	console.log("listings",options);
-	var user = options[0]
-	var listingIDs = []
-	// TODO add users ticket IDs to tickets
-	var listingsHtml = ``;
-	//TODO add the ticket info to html
-	res.send(listingsHtml)
 });
 
 // Create a new listing (Venue users)

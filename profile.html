@@ -11,7 +11,7 @@
     <button id="refListings" onclick="refreshListings()">Refresh</button>
 
     <script>
-        populateUsername()
+        window.onload = populateUsername;
 
         async function populateUsername() {
             var nameContainer = document.getElementById("nameContainer")
@@ -23,27 +23,28 @@
                 body: JSON.stringify({})
             });
             const username = await response.text();
-            console.log("username: ", username.body);
-            nameContainer.innerHTML = "<p>"+username+"</p>"
+            nameContainer.innerHTML = `<p> ${username} </p>`
         }
 
         async function refreshTickets() {
             const ticketContainer = document.getElementById("ticketCont");
             ticketContainer.innerHTML = "<p>Loading...</p>";
-            const tickets = await fetch("/profile/userTickets", {
+            const response = await fetch("/profile/userTickets", {
                 method: 'POST', 
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({})
             });
-            console.log("ticket", tickets);
-            ticketContainer.innerText = tickets;
-        }
-        async function refreshListings() {
-            const listingContainer = document.getElementById("listingCont");
-            const listings = await fetch("/profile/userListings");
-            listingContainer.innerText = listings
+            const tickets = await response.json()
+            ticketContainer.innerHTML = "";
+            tickets.forEach(ticket => {
+
+                const div = document.createElement("div");
+                div.innerHTML = `<p> Listing: ${ticket.listing_id}, Seat: ${ticket.seat_num}</p><br>\n<hr>`;
+
+                ticketContainer.appendChild(div);
+            });
         }
     </script>
 </main>
