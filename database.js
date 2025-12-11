@@ -1,10 +1,7 @@
 var { MongoClient, ObjectId } = require("mongodb");
 
-const URI = "mongodb://127.0.0.1:27017/";
-const DB_NAME = "bookingDB";
-
 async function getClient() {
-  const client = new MongoClient(URI);
+  const client = new MongoClient("mongodb://127.0.0.1:27017/");
   await client.connect();
   return client;
 }
@@ -12,7 +9,7 @@ async function getClient() {
 async function createUser(user) {
   try {
     const client = await getClient();
-    const db = client.db(DB_NAME);
+    const db = client.db("bookingDB");
     const coll = db.collection("users");
 
     await coll.createIndex({ email: 1 }, { unique: true }).catch(() => {});
@@ -31,7 +28,7 @@ async function createUser(user) {
 async function findUser(query) {
   try {
     const client = await getClient();
-    const db = client.db(DB_NAME);
+    const db = client.db("bookingDB");
     const coll = db.collection("users");
 
     const result = await coll.find(query).toArray();
@@ -46,7 +43,7 @@ async function findUser(query) {
 async function deleteUser(query) {
   try {
     const client = await getClient();
-    const db = client.db(DB_NAME);
+    const db = client.db("bookingDB");
     const coll = db.collection("users");
 
     await coll.deleteOne(query);
@@ -61,7 +58,7 @@ async function deleteUser(query) {
 async function createTicket(ticket) {
   try {
     const client = await getClient();
-    const db = client.db(DB_NAME);
+    const db = client.db("bookingDB");
     const coll = db.collection("tickets");
 
     await coll.insertOne(ticket);
@@ -76,7 +73,7 @@ async function createTicket(ticket) {
 async function createTickets(tickets) {
   try {
     const client = await getClient();
-    const db = client.db(DB_NAME);
+    const db = client.db("bookingDB");
     const coll = db.collection("tickets");
 
     await coll.insertMany(tickets);
@@ -91,7 +88,7 @@ async function createTickets(tickets) {
 async function findTicketByReservation(reservationQuery) {
   try {
     const client = await getClient();
-    const db = client.db(DB_NAME);
+    const db = client.db("bookingDB");
     const coll = db.collection("tickets");
 
     const result = await coll.find(reservationQuery).toArray();
@@ -106,7 +103,7 @@ async function findTicketByReservation(reservationQuery) {
 async function findTicketById(query) {
   try {
     const client = await getClient();
-    const db = client.db(DB_NAME);
+    const db = client.db("bookingDB");
     const coll = db.collection("tickets");
 
     const result = await coll.find(query).toArray();
@@ -121,7 +118,7 @@ async function findTicketById(query) {
 async function deleteTicket(query) {
   try {
     const client = await getClient();
-    const db = client.db(DB_NAME);
+    const db = client.db("bookingDB");
     const coll = db.collection("tickets");
 
     await coll.deleteOne(query);
@@ -136,7 +133,7 @@ async function deleteTicket(query) {
 async function deleteTicketByReservationId(reservationQuery) {
   try {
     const client = await getClient();
-    const db = client.db(DB_NAME);
+    const db = client.db("bookingDB");
     const coll = db.collection("tickets");
 
     await coll.deleteMany(reservationQuery);
@@ -151,7 +148,7 @@ async function deleteTicketByReservationId(reservationQuery) {
 async function createReservation(reservation) {
   try {
     const client = await getClient();
-    const db = client.db(DB_NAME);
+    const db = client.db("bookingDB");
     const coll = db.collection("reservations");
 
     await coll.insertOne(reservation);
@@ -166,7 +163,7 @@ async function createReservation(reservation) {
 async function findReservation(query) {
   try {
     const client = await getClient();
-    const db = client.db(DB_NAME);
+    const db = client.db("bookingDB");
     const coll = db.collection("reservations");
 
     const result = await coll.find(query).toArray();
@@ -181,7 +178,7 @@ async function findReservation(query) {
 async function deleteReservation(reservation) {
   try {
     const client = await getClient();
-    const db = client.db(DB_NAME);
+    const db = client.db("bookingDB");
     const coll = db.collection("reservations");
 
     await deleteTicketByReservationId({ reservationId: reservation.uniqueId });
@@ -204,7 +201,7 @@ async function deleteReservationByListingId(listingQuery) {
     await deleteTicketByReservationId({ reservationId: reservation.uniqueId });
 
     const client = await getClient();
-    const db = client.db(DB_NAME);
+    const db = client.db("bookingDB");
     const coll = db.collection("reservations");
 
     await coll.deleteOne({ _id: reservation._id });
@@ -219,7 +216,7 @@ async function deleteReservationByListingId(listingQuery) {
 async function createListing(listing) {
   try {
     const client = await getClient();
-    const db = client.db(DB_NAME);
+    const db = client.db("bookingDB");
     const coll = db.collection("listing");
 
     await coll.insertOne(listing);
@@ -234,7 +231,7 @@ async function createListing(listing) {
 async function findListing(query) {
   try {
     const client = await getClient();
-    const db = client.db(DB_NAME);
+    const db = client.db("bookingDB");
     const coll = db.collection("listing");
 
     const result = await coll.find(query).toArray();
@@ -251,7 +248,7 @@ async function deleteListing(listingQuery) {
     await deleteReservationByListingId(listingQuery);
 
     const client = await getClient();
-    const db = client.db(DB_NAME);
+    const db = client.db("bookingDB");
     const coll = db.collection("listing");
 
     await coll.deleteOne(listingQuery);
@@ -266,7 +263,7 @@ async function deleteListing(listingQuery) {
 async function update(collName, search, changes) {
   try {
     const client = await getClient();
-    const db = client.db(DB_NAME);
+    const db = client.db("bookingDB");
     const coll = db.collection(collName);
 
     await coll.updateOne(search, changes);
