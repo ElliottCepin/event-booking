@@ -314,6 +314,7 @@ app.post('/reserve', async (req, res) => {
             _id: user._id+ "_" + listing._id + "_" + Date.now(), // unique ticket ID
             userId: user._id,
             listingId: listing._id,
+			listingName: listing.name,
             seats: numSeats,
             timeslot: timeslot,
             date: new Date()
@@ -405,13 +406,7 @@ app.get("/profile/getUsername", async (req, res) => {
     if (!users[0]) return res.status(404).send("User not found");
 
     res.send(users[0].username);
-		var options = await db.findUser({"sessionID": session});
-		if (options.length != 0) {	
-			var username = options[0].username;
-			res.send(username)
-			return;
-		}
-		res.send("username not found");
+
 });
 
 app.get("/profile/userTickets", async (req, res) => {
@@ -426,16 +421,9 @@ app.get("/profile/userTickets", async (req, res) => {
     res.json(tickets); // send JSON
 });
 
-app.post('/profile/userListings', async (req, res) => {
-	var session = req.cookies.sessionID;
-	var options = await db.findUser({"sessionID": session});
-	console.log("listings",options);
-	var user = options[0]
-	var listingIDs = []
-	// TODO add users ticket IDs to tickets
-	var listingsHtml = ``;
-	//TODO add the ticket info to html
-	res.send(listingsHtml)
+app.get("/profile/signOut", async(req, res) => {
+	res.clearCookie("sessionID");
+	res.redirect('/login')
 });
 
 // Create a new listing (Venue users)

@@ -1,15 +1,18 @@
 <main>
-    <h1> Your Profile </h1>
+        <h1> Your Profile </h1>
+    
     <br>
-    <h3>Name</h3>
+    <div id="userName">
+    <h3>User Name:</h3>
     <div id="nameContainer"></div>
+    <a href="login" target="_blank"><button onclick="signOut()">Sign Out</button></a>
+    </div>
+    
+    <hr>
     <h3>User Tickets</h3>
-    <button id="refTickets" onclick="refreshTickets()">Refresh</button>
     <div id="ticketCont"></div>
-    <h3>User Listings</h3>
-    <div id="ListingCont"></div>
-    <button id="refListings" onclick="refreshListings()">Refresh</button>
-
+    <br>
+    <button id="refTickets" onclick="refreshTickets()">Refresh</button>
     <script>
 populateUsername();
 
@@ -19,6 +22,11 @@ async function populateUsername() {
     const username = await response.text();
     console.log("username:", username);
     nameContainer.innerHTML = `<p>${username}</p>`;
+}
+
+async function signOut() {
+    await fetch("/profile/signOut");
+
 }
 
 async function refreshTickets() {
@@ -46,23 +54,23 @@ async function refreshTickets() {
     });
 }
 
-async function refreshListings() {
-    const listingContainer = document.getElementById("ListingCont"); // fix ID typo
-    const response = await fetch("/profile/userListings"); // GET route
-    if (!response.ok) {
-        listingContainer.innerHTML = "<p>Error loading listings</p>";
-        return;
-    }
+// async function refreshListings() {
+//     const listingContainer = document.getElementById("ListingCont"); // fix ID typo
+//     const response = await fetch("/profile/userListings"); // GET route
+//     if (!response.ok) {
+//         listingContainer.innerHTML = "<p>Error loading listings</p>";
+//         return;
+//     }
 
-    const listings = await response.json();
-    listingContainer.innerHTML = "";
+//     const listings = await response.json();
+//     listingContainer.innerHTML = "";
 
-    listings.forEach(listing => {
-        const div = document.createElement("div");
-        div.textContent = `Name: ${listing.name}, Location: ${listing.location}`;
-        listingContainer.appendChild(div);
-    });
-}
+//     listings.forEach(listing => {
+//         const div = document.createElement("div");
+//         div.textContent = `Name: ${listing.name}, Location: ${listing.location}`;
+//         listingContainer.appendChild(div);
+//     });
+// }
 </script>
 </main>
 
@@ -72,5 +80,12 @@ async function refreshListings() {
 		max-width: 30vw;
         font-size: 20px;
 		font-family: Arial, sans-serif;
+    } 
+    #username {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        min-width: 20vw;
     }
 </style>
