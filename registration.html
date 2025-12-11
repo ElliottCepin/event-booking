@@ -4,6 +4,7 @@
 	<span class="field"><label>Username</label><input type="text" id="username"></span><br>
 	<span class="field"><label>Email</label><input type="text" id="email"></span><br>
 	<span class="field"><label>Password</label><input type="password" id="password"></span><br>
+	<span class="field"><label>Admin</label><input type="checkbox" id="isAdmin"></span><br>
 	<!-- I've ommited the part of the spec that mentioned a different user type for booking-users, hosts, and venues. It seems unreasonable to restrict them like this -->
 	<button id="submit" onclick="login()">Submit</button>
 </main>
@@ -27,6 +28,7 @@ function login() {
 	var username = document.getElementById("username").value;
 	var email = document.getElementById("email").value;
 	var password = document.getElementById("password").value;
+	var isAdmin = document.getElementById("isAdmin").checked;
 	
 	// browser should handle encryption from client to server
 	fetch("registration", {
@@ -35,9 +37,11 @@ function login() {
 			'Content-Type': 'application/json'
 		},
 		
-		body: JSON.stringify({username, email, password})
+		body: JSON.stringify({username, email, password, isAdmin})
 	});
 	document.getElementById("username").value = "";
 	document.getElementById("password").value = "";
+	document.getElementById("email").value = "";
+	document.getElementById("isAdmin").checked = false;
 }
 </script>

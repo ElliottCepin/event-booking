@@ -255,10 +255,26 @@ async function findListing(query) {
   }
 }
 
+async function deleteTickets(listingQuery) {
+  try {
+    const client = await getClient();
+    const db = client.db("bookingDB");
+    const coll = db.collection("tickets");
+    // detele all tickets where ListingID matches
+    
+    await coll.deleteMany(listingQuery);
+    await client.close();
+    return true;
+  } catch (err) {
+    console.log("deleteTicketByReservationId ERROR:", err);
+    return false;
+  }
+}
+
 async function deleteListing(listingQuery) {
   try {
     await deleteReservationByListingId(listingQuery);
-
+    await deleteTicketByReservationId({listingQuery});
     const client = await getClient();
     const db = client.db("bookingDB");
     const coll = db.collection("listing");
@@ -338,5 +354,6 @@ module.exports = {
     update,
     getAllListings,
     updateUser,
-    searchListings
+    searchListings,
+    deleteTickets
 };

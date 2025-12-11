@@ -3,6 +3,7 @@ var crypto = require("crypto");
 var db = require("./database.js");
 var express = require("express");
 var cookieParser = require("cookie-parser");
+const { ObjectId } = require('mongodb');
 var app = express();
 const port = 8080
 
@@ -112,12 +113,12 @@ app.get('/register', (req, res) => {
 });
 
 app.post('/registration', async (req, res) => {	
-	var { username, email, password } = req.body;
+	var { username, email, password, isAdmin } = req.body;
 	// TODO: query mongo DB for user password & salt
 	// use verifyPassword(password, salt, hash) <-- password from post request, salt & hash from MongoDB
-	console.log(`username\t${username}\temail\t${email}password\t${password}`);
+	console.log(`username\t${username}\temail\t${email}password\t${password}\tisAdmin\t${isAdmin}`);
 	var {salt, hash} = hashPassword(password);
-	var user = {"username": username, "email": email, "salt": salt, "password": hash, "sessionID": null};
+	var user = {"username": username, "email": email, "salt": salt, "password": hash, "sessionID": null, "isAdmin": isAdmin};
 	var options = await db.findUser({"_id":username});
 	if (options.length === 0) {
 		console.log("does this happen?");
@@ -314,6 +315,7 @@ app.post('/reserve', async (req, res) => {
             _id: user._id+ "_" + listing._id + "_" + Date.now(), // unique ticket ID
             userId: user._id,
             listingId: listing._id,
+			listingName: listing.name,
             seats: numSeats,
             timeslot: timeslot,
             date: new Date()
@@ -374,6 +376,7 @@ app.post("/listing/book", async (req, res) => {
         listingName: listing.name,
         bookedAt: new Date()
     };
+	console.log("ticket", ticket);
     await db.createTicket(ticket);
 
     res.json({ success: true, ticket });
@@ -443,6 +446,78 @@ app.get('/createListing', async (req, res) => {
 		res.redirect('/');
 });
 
+app.get('/admin', async (req, res) => {
+    const sessionID = req.cookies.sessionID;
+
+    // Check logged-in user
+    const users = await db.findUser({ sessionID });
+    if (users.length === 0 || !users[0].isAdmin) {
+        return res.status(403).send("Access denied — admins only.");
+    }
+
+    // Get all listings
+    const listings = await db.getAllListings();
+
+    let listingHTML = "";
+    for (let item of listings) {
+        listingHTML += `
+            <div class="listing" style="margin-bottom: 20px;">
+                <h3>${item.name}</h3>
+                <p><strong>Capacity:</strong> ${item.capacity}</p>
+                <p><strong>Location:</strong> ${item.location}</p>
+                <p><strong>Timeslots:</strong> ${item.timeslots.join(", ")}</p>
+
+                <form action="/admin/deleteListing" method="post">
+                    <input type="hidden" name="id" value="${item._id}">
+                    <button type="submit" style="background:red;color:white;">Delete</button>
+                </form>
+            </div>
+            <hr>
+        `;
+    }
+
+    const html = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Admin Panel</title>
+        </head>
+        <body>
+            ${header}
+            <h1>Admin Panel</h1>
+            <h2>Delete Listings</h2>
+
+            ${listingHTML}
+        </body>
+        </html>
+    `;
+
+    res.send(html);
+});
+
+app.post('/admin/deleteListing', async (req, res) => {
+    try {
+        const sessionID = req.cookies.sessionID;
+        const users = await db.findUser({ sessionID });
+
+        // Authorization check
+        if (users.length === 0 || !users[0].isAdmin) {
+            return res.status(403).send("Access denied — admins only.");
+        }
+
+        const { id } = req.body;
+
+        await db.deleteListing({ _id: new ObjectId(id) });
+		await db.deleteTickets({ listingId: new ObjectId(id) });
+
+        console.log("Deleted listing:", id);
+
+        res.redirect('/admin');
+    } catch (err) {
+        console.error("Delete listing error:", err);
+        res.status(500).send("Error deleting listing");
+    }
+});
 
 app.listen(port, () => console.log("listening..."));
 
