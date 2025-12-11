@@ -1,27 +1,36 @@
 <main>
     <h1> Your Profile </h1>
     <br>
+    <h3>Name</h3>
+    <div id="nameContainer"></div>
     <h3>User Tickets</h3>
-    <button id="refTickets" onclick="">Refresh</button>
+    <button id="refTickets" onclick="refreshTickets()">Refresh</button>
+    <div id="ticketCont"></div>
     <h3>User Listings</h3>
-    <button id="refListings">Refresh</button>
+    <div id="ListingCont"></div>
+    <button id="refListings" onclick="refreshListings()">Refresh</button>
 
     <script>
-        function refreshTickets() {
-            fetch("/profile/userTickets", {
-                method: 'POST', 
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-            });
+        populateUsername()
+        
+        async function populateUsername() {
+            var nameContainer = document.getElementById("nameContainer")
+            const username = await fetch("/profile/getUsername");
+            console.log("username: ", username);
+            nameContainer.innerHTML = "<p>"+username+"</p>"
         }
-        function refreshListings() {
-             fetch("/profile/userListings", {
-                method: 'POST', 
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-            });
+
+        async function refreshTickets() {
+            const ticketContainer = document.getElementById("ticketCont");
+            ticketContainer.innerHTML = "<p>Loading...</p>";
+            const tickets = await fetch("/profile/userTickets");
+            console.log("ticket", tickets);
+            ticketContainer.innerText = tickets;
+        }
+        async function refreshListings() {
+            const listingContainer = document.getElementById("listingCont");
+            const listings = await fetch("/profile/userListings");
+            listingContainer.innerText = listings
         }
     </script>
 </main>

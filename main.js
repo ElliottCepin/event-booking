@@ -210,21 +210,28 @@ app.get('/profile', async (req, res) => {
 	}
 });
 
+app.post('/profile/getUsername', async (req, res) => {
+	var session = req.cookies.sessionID;
+	var options = await db.findUser({"sessionID": session});
+	console.log(options);
+	res.send("placeholder");
+});
+
 app.post('/profile/userTickets', async (req, res) => {
+	var ticket = {"id":null, "listing_id":null, }
+	db.createTicket(ticket);
 	var session = req.cookies.sessionID;
 	var options = await db.findUser({"sessionID": session});
 	var user = options[0]
-	var ticketIDs = []
-	// TODO add users ticket IDs to tickets
-	var ticketsHtml = ``;
-	//TODO add the ticket info to html
-	res.send(ticketsHtml)
-	
+	var ticket = db.findTicketById(user._id);
+	console.log(ticket);
+	res.send(ticket)
 });
 
 app.post('/profile/userListings', async (req, res) => {
 	var session = req.cookies.sessionID;
 	var options = await db.findUser({"sessionID": session});
+	console.log("listings",options);
 	var user = options[0]
 	var listingIDs = []
 	// TODO add users ticket IDs to tickets
