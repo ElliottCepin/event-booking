@@ -427,7 +427,7 @@ app.get('/createListing', async (req, res) => {
 	if (logged_in) {
     var page = `<!DOCTYPE.HTML><html>${header + createListing}</body></html>`;
     return res.send(page);
-
+	
 	}
 		res.redirect('/');
 });
