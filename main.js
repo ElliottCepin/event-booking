@@ -227,14 +227,28 @@ app.post('/profile/getUsername', async (req, res) => {
 	
 });
 
-app.post('/profile/userTickets', async (req, res) => {
-	// var ticket = {"id":"test", "listing_id":"testListing", "seat_num": "000"}
-	// db.createTicket(ticket);
+app.get("/profile/userTickets", async (req, res) => {
+    const session = req.cookies.sessionID;
+    if (!session) return res.status(401).json({ error: "Not logged in" });
+
+    const users = await db.findUser({ sessionID: session });
+    const user = users[0];
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    const tickets = await db.findTicketById({ userId: user._id }); // adjust your query
+    res.json(tickets); // send JSON
+});
+
+app.post('/profile/userListings', async (req, res) => {
 	var session = req.cookies.sessionID;
 	var options = await db.findUser({"sessionID": session});
+	console.log("listings",options);
 	var user = options[0]
-	var ticket = await db.findTicketById({"id": user.username});
-	res.send(ticket)
+	var listingIDs = []
+	// TODO add users ticket IDs to tickets
+	var listingsHtml = ``;
+	//TODO add the ticket info to html
+	res.send(listingsHtml)
 });
 
 // Create a new listing (Venue users)

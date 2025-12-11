@@ -1,7 +1,6 @@
 var { MongoClient, ObjectId } = require("mongodb");
-
+const client = new MongoClient("mongodb://127.0.0.1:27017/");
 async function getClient() {
-  const client = new MongoClient("mongodb://127.0.0.1:27017/");
   await client.connect();
   return client;
 }
@@ -290,7 +289,7 @@ async function update(collName, search, changes) {
 
 async function getAllListings() {
     try {
-        client = await getClient(); 
+        await client.connect();
         var db = client.db('bookingDB');
         var coll = db.collection('listing'); // same name you used in createListing
         var result = await coll.find({}).toArray();
@@ -299,6 +298,23 @@ async function getAllListings() {
     }
     catch(err){
         console.log(err);
+    }
+}
+async function searchListings(query) {
+    try {
+        await client.connect();
+        const db = client.db("bookingDB");
+        const coll = db.collection("listing");
+
+        const results = await coll.find({
+            name: { $regex: query, $options: "i" }
+        }).toArray();
+
+        await client.close();
+        return results;
+    } catch (err) {
+        console.log("searchListings ERROR:", err);
+        return [];
     }
 }
 module.exports = {
@@ -320,5 +336,7 @@ module.exports = {
     findListing,
     deleteListing,
     update,
-    getAllListings
+    getAllListings,
+    updateUser,
+    searchListings
 };
